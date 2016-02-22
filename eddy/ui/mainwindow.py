@@ -70,7 +70,7 @@ from eddy.core.qt import ColoredIcon, Icon
 
 from eddy.ui.dialogs import About, OpenFile, SaveFile
 from eddy.ui.dialogs import BusyProgressDialog, PreferencesDialog
-from eddy.ui.docks import Explorer, Info, Overview, Palette
+from eddy.ui.docks import Explorer, Hierarchy, Info, Overview, Palette
 from eddy.ui.forms import CardinalityRestrictionForm, ValueRestrictionForm
 from eddy.ui.forms import OWLTranslationForm, ValueForm, RenameForm
 from eddy.ui.mdi import MdiArea, MdiSubWindow
@@ -469,6 +469,7 @@ class MainWindow(QMainWindow):
         ################################################################################################################
 
         self.explorer = Explorer(self)
+        self.hierarchy = Hierarchy(self)
         self.info = Info(self)
         self.mdi = MdiArea(self)
         self.overview = Overview(self)
@@ -481,6 +482,13 @@ class MainWindow(QMainWindow):
         self.dockExplorer.setFixedWidth(self.explorer.width())
         self.dockExplorer.setObjectName('explorer')
         self.dockExplorer.setWidget(self.explorer)
+
+        self.dockHierarchy = QDockWidget('Hierarchy', self, Qt.Widget)
+        self.dockHierarchy.setAllowedAreas(Qt.LeftDockWidgetArea|Qt.RightDockWidgetArea)
+        self.dockHierarchy.setFeatures(QDockWidget.DockWidgetClosable|QDockWidget.DockWidgetMovable)
+        self.dockHierarchy.setFixedWidth(self.hierarchy.width())
+        self.dockHierarchy.setObjectName('hierarchy')
+        self.dockHierarchy.setWidget(self.hierarchy)
 
         self.dockInfo = QDockWidget('Info', self, Qt.Widget)
         self.dockInfo.setAllowedAreas(Qt.LeftDockWidgetArea|Qt.RightDockWidgetArea)
@@ -506,6 +514,7 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.LeftDockWidgetArea, self.dockPalette)
         self.addDockWidget(Qt.LeftDockWidgetArea, self.dockInfo)
         self.addDockWidget(Qt.RightDockWidgetArea, self.dockOverview)
+        self.addDockWidget(Qt.RightDockWidgetArea, self.dockHierarchy)
         self.addDockWidget(Qt.RightDockWidgetArea, self.dockExplorer)
 
         ################################################################################################################
@@ -567,6 +576,7 @@ class MainWindow(QMainWindow):
         self.menuView.addAction(self.toolbar.toggleViewAction())
         self.menuView.addSeparator()
         self.menuView.addAction(self.dockExplorer.toggleViewAction())
+        self.menuView.addAction(self.dockHierarchy.toggleViewAction())
         self.menuView.addAction(self.dockInfo.toggleViewAction())
         self.menuView.addAction(self.dockOverview.toggleViewAction())
         self.menuView.addAction(self.dockPalette.toggleViewAction())
@@ -1391,6 +1401,7 @@ class MainWindow(QMainWindow):
             scene = mainview.scene()
             scene.undostack.setActive()
             self.info.browse(scene)
+            self.hierarchy.browse(scene)
             self.explorer.browse(mainview)
             self.overview.browse(mainview)
             disconnect(self.zoom.sgnChanged)
@@ -1405,6 +1416,7 @@ class MainWindow(QMainWindow):
                 self.info.reset()
                 self.explorer.reset()
                 self.overview.reset()
+                self.hierarchy.reset()
                 self.zoom.zoomReset()
                 self.setWindowTitle(None)
 
