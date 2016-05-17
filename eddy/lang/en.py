@@ -37,6 +37,7 @@
 ACTION_ABOUT_N = 'About {0}'
 ACTION_BRING_TO_FRONT_N = 'Bring to Front'
 ACTION_CENTER_DIAGRAM_N = 'Center diagram'
+ACTION_CHECK_FOR_UPDATES_N = 'Check for Updates...'
 ACTION_CLOSE_PROJECT_N = 'Close'
 ACTION_COMPOSE_PROPERTY_DOMAIN_N = 'Domain'
 ACTION_COMPOSE_PROPERTY_RANGE_N = 'Range'
@@ -70,6 +71,7 @@ ACTION_SYNTAX_CHECK_N = 'Run syntax validation'
 ACTION_TOGGLE_EDGE_COMPLETE_N = 'Complete'
 
 ACTION_ABOUT_S = 'About {0}'
+ACTION_CHECK_FOR_UPDATES_S = 'Check if a newer version of {0} if available'
 ACTION_BRING_TO_FRONT_S = 'Bring selected items to front'
 ACTION_CENTER_DIAGRAM_S = 'Center the active diagram'
 ACTION_CLOSE_PROJECT_S = 'Close the current project'
@@ -419,6 +421,20 @@ TOOLBAR_DOCUMENT = 'Document'
 TOOLBAR_EDITOR = 'Editor'
 TOOLBAR_VIEW = 'View'
 TOOLBAR_GRAPHOL = 'Graphol'
+
+#############################################
+# UPDATE CHECK
+#################################
+
+UPDATE_CHECK_PROGRESS_MESSAGE = 'Checking for updates...'
+UPDATE_CHECK_MESSAGE_CONNECTION_ERROR = 'Could not connect to update site.'
+UPDATE_CHECK_MESSAGE_INVALID_VERSION_NUMBER = 'Invalid version number returned by the update site: <b>{0}</b>.'
+UPDATE_CHECK_MESSAGE_OUTDATED = 'A new version of {0} is available: <a href="{1}">{2}</a>'
+UPDATE_CHECK_MESSAGE_UPDATED = 'You already have the latext version of {0} installed.'
+UPDATE_CHECK_TITLE_ERROR = 'Error'
+UPDATE_CHECK_TITLE_OUTDATED = 'Update available'
+UPDATE_CHECK_TITLE_UPDATED = 'Up to date'
+UPDATE_CHECK_TITLE_WARNING = 'Warning'
 
 #############################################
 # WELCOME SCREEN

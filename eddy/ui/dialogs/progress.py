@@ -39,6 +39,7 @@ from PyQt5.QtGui import  QIcon
 from PyQt5.QtWidgets import QDialog, QProgressBar, QVBoxLayout, QApplication
 
 from eddy.core.functions.misc import rangeF
+from eddy.core.qt import Font
 
 
 class BusyProgressDialog(QDialog):
@@ -60,6 +61,7 @@ class BusyProgressDialog(QDialog):
         self.progressBar.setFixedSize(300, 30)
         self.progressBar.setTextVisible(True)
         self.progressBar.setFormat(title or 'Busy ...')
+        self.progressBar.setFont(Font('Arial', 12))
         self.mainLayout = QVBoxLayout(self)
         self.mainLayout.addWidget(self.progressBar)
         self.setWindowIcon(QIcon(':/images/eddy'))

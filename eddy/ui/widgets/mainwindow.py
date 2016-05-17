@@ -36,7 +36,9 @@ import os
 import webbrowser
 
 from collections import OrderedDict
+from github3 import GitHub
 from traceback import format_exception as f_exc
+from verlib import IrrationalVersionError, NormalizedVersion
 
 from PyQt5.QtCore import Qt, QSettings, QByteArray, QEvent, pyqtSlot, pyqtSignal
 from PyQt5.QtGui import QBrush, QColor, QPixmap, QCursor
@@ -45,7 +47,7 @@ from PyQt5.QtWidgets import QMainWindow, QAction, QStatusBar, QToolButton
 from PyQt5.QtWidgets import QMenu, QApplication, QMessageBox
 from PyQt5.QtWidgets import QUndoGroup, QStyle, QFileDialog
 
-from eddy import APPNAME, DIAG_HOME, GRAPHOL_HOME, ORGANIZATION, BUG_TRACKER
+from eddy import APPNAME, DIAG_HOME, GRAPHOL_HOME, ORGANIZATION, BUG_TRACKER, VERSION
 from eddy.core.commands.common import CommandComposeAxiom
 from eddy.core.commands.common import CommandItemsRemove
 from eddy.core.commands.common import CommandItemsTranslate
@@ -76,6 +78,7 @@ from eddy.core.loaders.graphml import GraphmlLoader
 from eddy.core.loaders.graphol import GrapholLoader
 from eddy.core.loaders.project import ProjectLoader
 from eddy.core.qt import Icon, ColoredIcon
+from eddy.core.regex import RE_TAG_VERSION
 from eddy.core.utils.clipboard import Clipboard
 
 from eddy.lang import gettext as _
@@ -228,6 +231,7 @@ class MainWindow(QMainWindow):
         self.iconSwapHorizontal = Icon(':/icons/24/swap-horizontal')
         self.iconSwapVertical = Icon(':/icons/24/swap-vertical')
         self.iconUndo = Icon(':/icons/24/undo')
+        self.iconUpdate = Icon(':/icons/24/update')
         self.iconTop = Icon(':/icons/24/top')
 
         #############################################
@@ -250,6 +254,7 @@ class MainWindow(QMainWindow):
         self.actionQuit = QAction(_('ACTION_QUIT_N'), self)
         self.actionCloseProject = QAction(_('ACTION_CLOSE_PROJECT_N'), self)
         self.actionAbout = QAction(_('ACTION_ABOUT', APPNAME), self)
+        self.actionCheckForUpdates = QAction(_('ACTION_CHECK_FOR_UPDATES_N'), self)
         self.actionDiagWeb = QAction(_('ACTION_DIAG_WEBSITE_N'), self)
         self.actionGrapholWeb = QAction(_('ACTION_GRAPHOL_WEBSITE_N'), self)
         self.actionSyntaxCheck = QAction(_('ACTION_SYNTAX_CHECK_N'), self)
@@ -345,6 +350,10 @@ class MainWindow(QMainWindow):
 
         if Platform.identify() is not Platform.Darwin:
             self.actionAbout.setIcon(self.iconHelp)
+
+        self.actionCheckForUpdates.setStatusTip(_('ACTION_CHECK_FOR_UPDATES_S', APPNAME))
+        self.actionCheckForUpdates.setIcon(self.iconUpdate)
+        connect(self.actionCheckForUpdates.triggered, self.doCheckForUpdates)
 
         self.actionDiagWeb.setIcon(self.iconLink)
         self.actionDiagWeb.setData(DIAG_HOME)
@@ -737,6 +746,7 @@ class MainWindow(QMainWindow):
         self.menuTools.addAction(self.actionSyntaxCheck)
 
         self.menuHelp.addAction(self.actionAbout)
+        self.menuHelp.addAction(self.actionCheckForUpdates)
         self.menuHelp.addSeparator()
         self.menuHelp.addAction(self.actionDiagWeb)
         self.menuHelp.addAction(self.actionGrapholWeb)
@@ -909,6 +919,46 @@ class MainWindow(QMainWindow):
                     command = CommandItemsTranslate(diagram, items, moveX, moveY, _('COMMAND_DIAGRAM_CENTER'))
                     diagram.undoStack.push(command)
                     self.mdi.activeView.centerOn(0, 0)
+
+    @pyqtSlot()
+    def doCheckForUpdates(self):
+        """
+        Checks whether a newer version of Eddy is available.
+        """
+        message = _('UPDATE_CHECK_MESSAGE_UPDATED', APPNAME)
+        title = _('UPDATE_CHECK_TITLE_UPDATED')
+        pixmap = QPixmap(':/icons/48/done')
+
+        with BusyProgressDialog(_('UPDATE_CHECK_PROGRESS_MESSAGE'), 2, self):
+
+            try:
+                release = first(GitHub().repository('danielepantaleone', 'eddy').iter_releases())
+            except Exception:
+                message = _('UPDATE_CHECK_MESSAGE_CONNECTION_ERROR')
+                title = _('UPDATE_CHECK_TITLE_ERROR')
+                pixmap = QPixmap(':/icons/48/error')
+            else:
+                match = RE_TAG_VERSION.match(release.tag_name)
+                try:
+                    if not match:
+                        raise IrrationalVersionError
+                    if NormalizedVersion(match.group('version')) > NormalizedVersion(VERSION):
+                        message = _('UPDATE_CHECK_MESSAGE_OUTDATED', APPNAME, release.assets_url, release.tag_name)
+                        title = _('UPDATE_CHECK_TITLE_OUTDATED')
+                        pixmap = QPixmap(':/icons/48/update')
+                except IrrationalVersionError:
+                    message = _('UPDATE_CHECK_MESSAGE_INVALID_VERSION_NUMBER', release.tag_name)
+                    title = _('UPDATE_CHECK_TITLE_WARNING')
+                    pixmap = QPixmap(':/icons/48/warning')
+
+        msgbox = QMessageBox(self)
+        msgbox.setIconPixmap(pixmap)
+        msgbox.setWindowIcon(QIcon(':/images/eddy'))
+        msgbox.setWindowTitle(title)
+        msgbox.setStandardButtons(QMessageBox.Close)
+        msgbox.setText(message)
+        msgbox.setTextFormat(Qt.RichText)
+        msgbox.exec_()
 
     @pyqtSlot()
     def doCloseProject(self):
