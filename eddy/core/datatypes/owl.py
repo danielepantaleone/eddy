@@ -151,7 +151,8 @@ class Facet(Enum):
             Datatype.unsignedInt: numbers,
             Datatype.unsignedLong: numbers,
             Datatype.unsignedShort: numbers,
-            Datatype.xmlLiteral: []
+            Datatype.xmlLiteral: [],
+            None: allvalues,
         }[value]
 
     @classmethod

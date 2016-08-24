@@ -51,6 +51,8 @@
 <qresource prefix="/icons/24">
   <file alias="ic_add_document_black">../../resources/icons/24/ic_add_document_black_24dp_1x.png</file>
   <file alias="ic_add_document_black@2x">../../resources/icons/24/ic_add_document_black_24dp_2x.png</file>
+  <file alias="ic_add_circle_outline_black">../../resources/icons/24/ic_add_circle_outline_black_24dp_1x.png</file>
+  <file alias="ic_add_circle_outline_black@2x">../../resources/icons/24/ic_add_circle_outline_black_24dp_2x.png</file>
   <file alias="ic_keyboard_arrow_down_black">../../resources/icons/24/ic_keyboard_arrow_down_black_24dp_1x.png</file>
   <file alias="ic_keyboard_arrow_down_black@2x">../../resources/icons/24/ic_keyboard_arrow_down_black_24dp_2x.png</file>
   <file alias="ic_keyboard_arrow_up_black">../../resources/icons/24/ic_keyboard_arrow_up_black_24dp_1x.png</file>

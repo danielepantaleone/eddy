@@ -41,8 +41,9 @@ from eddy.core.commands.labels import CommandLabelChange
 from eddy.core.datatypes.graphol import Identity
 from eddy.core.datatypes.owl import Datatype
 from eddy.core.datatypes.qt import Font
-from eddy.core.functions.misc import isEmpty
+from eddy.core.functions.misc import isEmpty, cutL
 from eddy.core.functions.signals import connect
+from eddy.core.regex import RE_DATATYPE
 
 from eddy.ui.fields import ComboBox
 from eddy.ui.fields import IntegerField
@@ -368,7 +369,7 @@ class ValueForm(QtWidgets.QDialog):
     @property
     def session(self):
         """
-        Returns the reference to the active session (alias for RefactorNameForm.parent()).
+        Returns the reference to the active session (alias for ValueForm.parent()).
         :rtype: Session
         """
         return self.parent()
@@ -391,3 +392,112 @@ class ValueForm(QtWidgets.QDialog):
             name = 'change {0} to {1}'.format(node.text(), data)
             self.session.undostack.push(CommandLabelChange(diagram, node, node.text(), data, name=name))
         super().accept()
+
+
+class DatatypeDefinitionForm(QDialog):
+    """
+    Extends QDialog providing an interface used to define a new datatype.
+    """
+    def __init__(self, node, session):
+        """
+        Initialize the form dialog.
+        :type node: ValueDomainNode
+        :type session: Session
+        """
+        super().__init__(session)
+
+        self.node = node
+
+        arial12r = Font('Arial', 12)
+
+        #############################################
+        # FORM AREA
+        #################################
+
+        self.prefixLabel = QLabel(self)
+        self.prefixLabel.setFont(arial12r)
+        self.prefixLabel.setText('{0}:'.format(self.project.prefix))
+        self.valueField = StringField(self)
+        self.valueField.setFont(arial12r)
+        self.valueField.setFixedWidth(300)
+        self.valueField.setText(cutL(node.text(), self.project.prefix, ':'))
+
+        self.formWidget = QWidget(self)
+        self.formLayout = QFormLayout(self.formWidget)
+        self.formLayout.addRow(self.prefixLabel, self.valueField)
+
+        #############################################
+        # CONFIRMATION AREA
+        #################################
+
+        self.confirmationBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
+        self.confirmationBox.setContentsMargins(10, 0, 10, 10)
+        self.confirmationBox.setFont(arial12r)
+
+        #############################################
+        # SETUP DIALOG LAYOUT
+        #################################
+
+        self.mainLayout = QVBoxLayout(self)
+        self.mainLayout.setContentsMargins(0, 0, 0, 0)
+        self.mainLayout.addWidget(self.formWidget)
+        self.mainLayout.addWidget(self.confirmationBox, 0, Qt.AlignRight)
+
+        self.setFixedSize(self.sizeHint())
+        self.setWindowIcon(QIcon(':/icons/128/ic_eddy'))
+        self.setWindowTitle('Datatype definition')
+
+        connect(self.confirmationBox.accepted, self.accept)
+        connect(self.confirmationBox.rejected, self.reject)
+
+    #############################################
+    #   PROPERTIES
+    #################################
+
+    @property
+    def project(self):
+        """
+        Returns the reference to the active project.
+        :rtype: Project
+        """
+        return self.session.project
+
+    @property
+    def session(self):
+        """
+        Returns the reference to the active session (alias for RefactorNameForm.parent()).
+        :rtype: Session
+        """
+        return self.parent()
+
+    #############################################
+    #   INTERFACE
+    #################################
+
+    def datatype(self):
+        """
+        Returns the value of the defined datatype (prefixed with the project prefix).
+        :rtype: str
+        """
+        datatype = self.valueField.text()
+        match = RE_DATATYPE.match(datatype)
+        if match:
+            datatype = match.group('value')
+        return '{0}:{1}'.format(self.project.prefix, datatype)
+
+    #############################################
+    #   SLOTS
+    #################################
+
+    @pyqtSlot()
+    def accept(self):
+        """
+        Accepts the form and set the new value.
+        """
+        node = self.node
+        diagram = self.node.diagram
+        value = self.datatype()
+        if node.text() != value:
+            name = 'set custom datatype to {0}: {1}'.format(node.shortName, value)
+            self.session.undostack.push(CommandLabelChange(diagram, node, node.text(), value, name))
+        super(DatatypeDefinitionForm, self).accept()

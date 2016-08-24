@@ -166,8 +166,7 @@ class ValueDomainNode(AbstractNode):
         Set the label text.
         :type text: str
         """
-        datatype = Datatype.forValue(text) or Datatype.string
-        self.label.setText(datatype.value)
+        self.label.setText(text)
         self.updateNode()
 
     def setTextPos(self, pos):

@@ -100,6 +100,7 @@ from eddy.ui.diagram import NewDiagramDialog
 from eddy.ui.diagram import RenameDiagramDialog
 from eddy.ui.fields import ComboBox
 from eddy.ui.forms import CardinalityRestrictionForm
+from eddy.ui.forms import DatatypeDefinitionForm
 from eddy.ui.forms import RefactorNameForm
 from eddy.ui.forms import ValueForm
 from eddy.ui.log import LogDialog
@@ -750,6 +751,8 @@ class Session(HasActionSystem, HasMenuSystem, HasPluginSystem, HasWidgetSystem,
         menu = QtWidgets.QMenu('Select type', objectName='datatype')
         menu.setIcon(QtGui.QIcon(':/icons/24/ic_transform_black'))
         menu.addActions(self.action('datatype').actions())
+        menu.addSeparator()
+        menu.addAction(self.action('create_datatype'))
         self.addMenu(menu)
 
         #############################################
@@ -927,6 +930,20 @@ class Session(HasActionSystem, HasMenuSystem, HasPluginSystem, HasWidgetSystem,
     #############################################
     #   SLOTS
     #################################
+
+    @QtCore.pyqtSlot()
+    def doAddDatatype(self):
+        """
+        Allow to create a custom datatype.
+        """
+        diagram = self.mdi.activeDiagram()
+        if diagram:
+            diagram.setMode(DiagramMode.Idle)
+            fn = lambda x: x.type() is Item.ValueDomainNode
+            node = first(diagram.selectedNodes(filter_on_nodes=fn))
+            if node:
+                dialog = DatatypeDefinitionForm(node, self)
+                dialog.exec_()
 
     @QtCore.pyqtSlot()
     def doBringToFront(self):
@@ -1623,11 +1640,10 @@ class Session(HasActionSystem, HasMenuSystem, HasPluginSystem, HasWidgetSystem,
             node = first(diagram.selectedNodes(filter_on_nodes=fn))
             if node:
                 action = self.sender()
-                datatype = action.data()
-                data = datatype.value
-                if node.text() != data:
-                    name = 'change {0} to {1}'.format(node.shortName, data)
-                    self.undostack.push(CommandLabelChange(diagram, node, node.text(), data, name=name))
+                value = action.text()
+                if node.text() != value:
+                    name = 'change {0} to {1}'.format(node.shortName, value)
+                    self.undostack.push(CommandLabelChange(diagram, node, node.text(), value, name=name))
 
     @QtCore.pyqtSlot()
     def doSetFacet(self):

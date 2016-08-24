@@ -60,6 +60,8 @@ class MenuFactory(QtCore.QObject):
         :type session: Session
         """
         super().__init__(session)
+        self.customAction = {}
+        self.customMenu = {}
 
     #############################################
     #   PROPERTIES
@@ -549,10 +551,28 @@ class MenuFactory(QtCore.QObject):
         :rtype: QMenu
         """
         menu = self.buildGenericNodeMenu(diagram, node)
-        menu.insertMenu(self.session.action('node_properties'), self.session.menu('datatype'))
+        # INSERT BUILT-IN DATATYPES (CREATE A NEW QMENU NOT TO OVERWRITE THE BUILT-IN ONE)
+        self.customMenu['datatype'] = QMenu('Select type')
+        self.customMenu['datatype'].setIcon(self.session.menu('datatype').icon())
+        self.customMenu['datatype'].addActions(self.session.action('datatype').actions())
+        ## INSERT CUSTOM DEFINED DATATYPES
+        self.customAction['datatype'] = []
+        custom = set(n.text() for n in self.project.predicates(Item.ValueDomainNode) if n.datatype is None)
+        if custom:
+            self.customMenu['datatype'].addSeparator()
+            for datatype in sorted(custom):
+                action = QAction(datatype, checkable=True, triggered=self.session.doSetDatatype)
+                self.customAction['datatype'].append(action)
+                self.customMenu['datatype'].addAction(action)
+        # INSERT NEW DATATYPE ACTION
+        self.customMenu['datatype'].addSeparator()
+        self.customMenu['datatype'].addAction(self.session.action('create_datatype'))
+        # INSERT THE CUSTOM MENU IN THE NODE CONTEXTUAL MENU
+        menu.insertMenu(self.session.action('node_properties'), self.customMenu['datatype'])
         menu.insertSeparator(self.session.action('node_properties'))
-        for action in self.session.action('datatype').actions():
-            action.setChecked(node.datatype == action.data())
+        # SELECT THE CURRENT DATATYPE
+        for action in self.session.action('datatype').actions() + self.customAction['datatype']:
+            action.setChecked(node.text() == action.text())
         return menu
 
     #############################################

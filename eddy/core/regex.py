@@ -38,6 +38,7 @@ import re
 
 RE_CAMEL_SPACE = re.compile("""([a-z])([A-Z])""") # space string on camel case token
 RE_CARDINALITY = re.compile("""^\(\s*(?P<min>[\d-]+)\s*,\s*(?P<max>[\d-]+)\s*\)$""") # parse cardinality restriction
+RE_DATATYPE = re.compile("""^(?P<namespace>.*):(?P<value>.*)$""") # extract datatype prefix and value
 RE_DIGIT = re.compile("""\d""") # identify strings composed of only digits
 RE_FILE_EXTENSION = re.compile(""".*\(\*(?P<extension>\.\w+)\)""") # to extract the extension from the File enum
 RE_FACET = re.compile("""^(?P<facet>[\w:]*)[\s\^]*"(?P<value>.*)"$""") # tokenize facet restriction
