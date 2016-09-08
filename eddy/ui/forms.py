@@ -499,5 +499,5 @@ class DatatypeDefinitionForm(QDialog):
         value = self.datatype()
         if node.text() != value:
             name = 'set custom datatype to {0}: {1}'.format(node.shortName, value)
-            self.session.undostack.push(CommandLabelChange(diagram, node, node.text(), value, name))
+            self.session.undostack.push(CommandLabelChange(diagram, node, node.text(), value, name=name))
         super(DatatypeDefinitionForm, self).accept()
