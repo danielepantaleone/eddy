@@ -41,7 +41,7 @@ from eddy.core.commands.labels import CommandLabelChange
 from eddy.core.datatypes.graphol import Identity
 from eddy.core.datatypes.owl import Datatype
 from eddy.core.datatypes.qt import Font
-from eddy.core.functions.misc import isEmpty, cutL
+from eddy.core.functions.misc import isEmpty, lstrip
 from eddy.core.functions.signals import connect
 from eddy.core.regex import RE_DATATYPE
 
@@ -394,7 +394,7 @@ class ValueForm(QtWidgets.QDialog):
         super().accept()
 
 
-class DatatypeDefinitionForm(QDialog):
+class DatatypeDefinitionForm(QtWidgets.QDialog):
     """
     Extends QDialog providing an interface used to define a new datatype.
     """
@@ -414,23 +414,23 @@ class DatatypeDefinitionForm(QDialog):
         # FORM AREA
         #################################
 
-        self.prefixLabel = QLabel(self)
+        self.prefixLabel = QtWidgets.QLabel(self)
         self.prefixLabel.setFont(arial12r)
         self.prefixLabel.setText('{0}:'.format(self.project.prefix))
         self.valueField = StringField(self)
         self.valueField.setFont(arial12r)
         self.valueField.setFixedWidth(300)
-        self.valueField.setText(cutL(node.text(), self.project.prefix, ':'))
+        self.valueField.setText(lstrip(node.text(), self.project.prefix, ':'))
 
-        self.formWidget = QWidget(self)
-        self.formLayout = QFormLayout(self.formWidget)
+        self.formWidget = QtWidgets.QWidget(self)
+        self.formLayout = QtWidgets.QFormLayout(self.formWidget)
         self.formLayout.addRow(self.prefixLabel, self.valueField)
 
         #############################################
         # CONFIRMATION AREA
         #################################
 
-        self.confirmationBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
+        self.confirmationBox = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok|QtWidgets.QDialogButtonBox.Cancel, QtCore.Qt.Horizontal, self)
         self.confirmationBox.setContentsMargins(10, 0, 10, 10)
         self.confirmationBox.setFont(arial12r)
 
@@ -438,13 +438,13 @@ class DatatypeDefinitionForm(QDialog):
         # SETUP DIALOG LAYOUT
         #################################
 
-        self.mainLayout = QVBoxLayout(self)
+        self.mainLayout = QtWidgets.QVBoxLayout(self)
         self.mainLayout.setContentsMargins(0, 0, 0, 0)
         self.mainLayout.addWidget(self.formWidget)
-        self.mainLayout.addWidget(self.confirmationBox, 0, Qt.AlignRight)
+        self.mainLayout.addWidget(self.confirmationBox, 0, QtCore.Qt.AlignRight)
 
         self.setFixedSize(self.sizeHint())
-        self.setWindowIcon(QIcon(':/icons/128/ic_eddy'))
+        self.setWindowIcon(QtGui.QIcon(':/icons/128/ic_eddy'))
         self.setWindowTitle('Datatype definition')
 
         connect(self.confirmationBox.accepted, self.accept)
@@ -489,7 +489,7 @@ class DatatypeDefinitionForm(QDialog):
     #   SLOTS
     #################################
 
-    @pyqtSlot()
+    @QtCore.pyqtSlot()
     def accept(self):
         """
         Accepts the form and set the new value.

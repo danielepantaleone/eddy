@@ -552,7 +552,7 @@ class MenuFactory(QtCore.QObject):
         """
         menu = self.buildGenericNodeMenu(diagram, node)
         # INSERT BUILT-IN DATATYPES (CREATE A NEW QMENU NOT TO OVERWRITE THE BUILT-IN ONE)
-        self.customMenu['datatype'] = QMenu('Select type')
+        self.customMenu['datatype'] = QtWidgets.QMenu('Select type')
         self.customMenu['datatype'].setIcon(self.session.menu('datatype').icon())
         self.customMenu['datatype'].addActions(self.session.action('datatype').actions())
         ## INSERT CUSTOM DEFINED DATATYPES
@@ -561,7 +561,7 @@ class MenuFactory(QtCore.QObject):
         if custom:
             self.customMenu['datatype'].addSeparator()
             for datatype in sorted(custom):
-                action = QAction(datatype, checkable=True, triggered=self.session.doSetDatatype)
+                action = QtWidgets.QAction(datatype, checkable=True, triggered=self.session.doSetDatatype)
                 self.customAction['datatype'].append(action)
                 self.customMenu['datatype'].addAction(action)
         # INSERT NEW DATATYPE ACTION

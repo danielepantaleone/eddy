@@ -567,6 +567,11 @@ class Session(HasActionSystem, HasMenuSystem, HasPluginSystem, HasWidgetSystem,
             group.addAction(action)
         self.addAction(group)
 
+        self.addAction(QtWidgets.QAction(
+            QtGui.QIcon(':/icons/24/ic_add_circle_outline_black'), 'Add...', self,
+            objectName='create_datatype', triggered=self.doAddDatatype,
+            statusTip='Create a new datatype'))
+
         #############################################
         # INDIVIDUAL SPECIFIC
         #################################
